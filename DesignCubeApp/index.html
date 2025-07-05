@@ -1,0 +1,195 @@
+<!--
+  @file        index.html
+  @description Main UI layout for DesignQube, a tile and sanitaryware store management system.
+               This file defines the structure and navigation of the application, including sections
+               for dashboard, product management, sales tracking, and history.
+  @author      Vanshika Kaushal
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DesignQube</title>
+
+  <!-- External CSS -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Read Excel file library -->
+  <script src="https://cdn.jsdelivr.net/npm/read-excel-file@5.8.8/bundle/read-excel-file.min.js"></script>
+</head>
+<body>
+
+  <!-- App Header -->
+  <h1>DesignQube</h1>
+
+  <!-- Navigation Menu -->
+  <nav>
+    <button onclick="showSection('dashboard')">Dashboard</button>
+    <button onclick="showSection('products')">Products</button>
+    <button onclick="showSection('sales')">Sales</button>
+    <button onclick="showSection('sales-history')">Sales History</button>
+  </nav>
+
+  <!-- Main Content Area -->
+  <main>
+
+    <!--  Dashboard Section -->
+    <section id="dashboard">
+      <h2>Dashboard</h2>
+      <p>Total Products: <span id="total-products">0</span></p>
+      <p>Total Stock: <span id="total-stock">0</span></p>
+      <p>Total Sales (₹): <span id="total-sales">0.00</span></p>
+
+      <!--  Low Stock Alert List -->
+      <h3>Low Stock Products:</h3>
+      <ul id="low-stock-ul"></ul>
+    </section>
+
+    <!--  Products Overview Section -->
+    <section id="products">
+      <h2>Products</h2>
+      <button onclick="showSection('tiles-page')">Tiles</button>
+      <button onclick="showSection('sanitary-page')">Sanitary</button>
+      <button onclick="showSection('others-page')">Others</button>
+    </section>
+
+    <!--  Tiles Page -->
+    <section id="tiles-page">
+      <h2>Tiles</h2>
+      <button onclick="showSection('products')">← Back</button>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button onclick="prepareAddProduct('Tile')">Add Product</button>
+        <button onclick="showAddStockPopup()">Add Stock</button>
+      </div>
+      <table id="tiles-table">
+        <thead>
+          <tr>
+            <th>Serial</th><th>Brand</th><th>Name</th><th>Size</th>
+            <th>Boxes</th><th>Pieces</th><th>Price/Box</th><th>Total</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!--  Sanitary Page -->
+    <section id="sanitary-page">
+      <h2>Sanitary</h2>
+      <button onclick="showSection('products')">← Back</button>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button onclick="prepareAddProduct('Sanitary')">Add Product</button>
+        <button onclick="showAddStockPopup()">Add Stock</button>
+      </div>
+      <table id="sanitary-table">
+        <thead>
+          <tr>
+            <th>Serial</th><th>Brand</th><th>Name</th>
+            <th>Boxes</th><th>Pieces</th><th>Price/Box</th><th>Total</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Others Page -->
+    <section id="others-page">
+      <h2>Others</h2>
+      <button onclick="showSection('products')">← Back</button>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button onclick="prepareAddProduct('Others')">Add Product</button>
+        <button onclick="showAddStockPopup()">Add Stock</button>
+      </div>
+      <table id="others-table">
+        <thead>
+          <tr>
+            <th>Serial</th><th>Type</th><th>Brand</th><th>Name</th>
+            <th>Size</th><th>Boxes</th><th>Pieces</th><th>Price/Box</th><th>Total</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Sales Section (Live Sales View) -->
+    <section id="sales">
+      <h2>Sales</h2>
+
+      <!-- Tab Buttons for Switching Sales Category -->
+      <div class="tab-buttons">
+        <button onclick="toggleSalesTab('sales-tiles')">Tiles</button>
+        <button onclick="toggleSalesTab('sales-sanitary')">Sanitary</button>
+        <button onclick="toggleSalesTab('sales-others')">Others</button>
+      </div>
+
+      <!-- Sales Tables by Category -->
+      <div id="sales-tiles" class="sales-tab">
+        <h3>Tiles Sales</h3>
+        <table><thead><tr><th>Serial</th><th>Name</th><th>Quantity</th><th>Total</th><th>Date</th></tr></thead><tbody></tbody></table>
+      </div>
+
+      <div id="sales-sanitary" class="sales-tab" style="display:none;">
+        <h3>Sanitary Sales</h3>
+        <table><thead><tr><th>Serial</th><th>Name</th><th>Quantity</th><th>Total</th><th>Date</th></tr></thead><tbody></tbody></table>
+      </div>
+
+      <div id="sales-others" class="sales-tab" style="display:none;">
+        <h3>Others Sales</h3>
+        <table><thead><tr><th>Serial</th><th>Name</th><th>Quantity</th><th>Total</th><th>Date</th></tr></thead><tbody></tbody></table>
+      </div>
+    </section>
+
+    <!-- Sales History Section -->
+    <section id="sales-history">
+      <h2>Sales History</h2>
+      <button onclick="showSection('products')">← Back</button>
+      <button onclick="prepareNewSales('Any')">Add New Sale</button>
+      <table id="sales-table">
+        <thead>
+          <tr><th>Serial</th><th>Name</th><th>Quantity</th><th>Total</th><th>Date</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <!-- Add Product Popup -->
+  <div id="add-product-popup" class="popup">
+    <div class="popup-content">
+      <h3>Add New Product</h3>
+      <form id="product-form">
+        <input type="text" placeholder="Serial Number" name="serial" required />
+        <input type="text" placeholder="Brand" name="brand" required />
+        <input type="text" placeholder="Name" name="name" required />
+        <input type="text" placeholder="Type (Others only)" name="typeField" />
+        <input type="text" placeholder="Size (optional)" name="size" />
+        <input type="number" placeholder="Number of Boxes" name="numBoxes" />
+        <input type="number" placeholder="Number of Pieces" name="numPieces" />
+        <input type="number" placeholder="Price per Box" name="pricePerBox" />
+        <input type="hidden" name="type" />
+        <button type="submit">Add Product</button>
+        <button type="button" onclick="closeAddProductPopup()">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Stock via Excel Upload -->
+  <div id="add-stock-popup" class="popup">
+    <div class="popup-content">
+      <h3>Upload Excel File to Add Stock</h3>
+      <form id="stock-upload-form">
+        <input type="file" id="stock-file" accept=".xls,.xlsx" required />
+        <br><br>
+        <button type="submit">Upload</button>
+        <button type="button" onclick="closeAddStockPopup()">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- JavaScript Functionality -->
+  <script src="app.js"></script>
+
+</body>
+</html>
